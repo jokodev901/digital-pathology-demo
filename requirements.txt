@@ -1,0 +1,10 @@
+django
+django-rest-knox
+djangorestframework
+gunicorn
+requests
+Pillow
+torch
+numpy
+transformers
+dotenv

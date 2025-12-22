@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% if form.non_field_errors %}
+    <div style="background: #ffdce0; color: #af192e; padding: 10px; border-radius: 4px; margin-bottom: 1rem;">
+        {% for error in form.non_field_errors %}
+            {{ error }}
+        {% endfor %}
+    </div>
+{% endif %}
+
+<article>
+    <h2>Log In</h2>
+    <form method="post">
+        {% csrf_token %}
+
+        {% for field in form %}
+            <label for="{{ field.id_for_label }}">
+                {{ field.label }}
+                {{ field }}
+                {% if field.help_text %}
+                    <small>{{ field.help_text }}</small>
+                {% endif %}
+                {% for error in field.errors %}
+                    <p style="color: red;"><small>{{ error }}</small></p>
+                {% endfor %}
+            </label>
+        {% endfor %}
+
+        <button type="submit">Sign In</button>
+    </form>
+</article>
+{% endblock %}
