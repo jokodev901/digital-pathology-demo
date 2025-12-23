@@ -17,8 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from authentication import template_urls as auth_temp_urls
+from core import urls as core_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include(auth_temp_urls)),
+    path('', include(core_urls)),
 ]

@@ -27,6 +27,8 @@ RUN useradd -m -r appuser && \
    mkdir /app && \
    chown -R appuser /app
 
+RUN mkdir -p /app/staticfiles && chown -R appuser:appuser /app/staticfiles
+
 # Copy the Python dependencies from the builder stage
 COPY --from=builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
@@ -48,7 +50,7 @@ USER appuser
 EXPOSE 8000
 
 # Run collectstatic to gather all static files
-RUN python manage.py collectstatic --noinput
+# RUN python manage.py collectstatic --noinput
 
 # Start the application using Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "5", "--timeout", "60", "digital_pathology_demo.wsgi:application"]
+# CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "5", "--timeout", "30",  "--forwarded-allow-ips", "*", "digital_pathology_demo.wsgi:application"]
