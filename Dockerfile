@@ -51,4 +51,4 @@ EXPOSE 8000
 RUN python manage.py collectstatic --noinput
 
 # Start the application using Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "17", "--timeout", "120", "digital_pathology_demo.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "5", "--timeout", "60", "digital_pathology_demo.wsgi:application"]

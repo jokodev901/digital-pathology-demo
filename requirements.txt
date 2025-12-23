@@ -1,10 +1,13 @@
+# Get the cpu version of torch libraries
+--index-url https://download.pytorch.org/whl/cpu
+--extra-index-url https://pypi.org/simple
+torch
 django
 django-rest-knox
 djangorestframework
 gunicorn
 requests
 Pillow
-torch
 numpy
 transformers
 dotenv

@@ -4,6 +4,7 @@ services:
    container_name: digital_pathology_demo
    volumes:
      - .:/app
+     - ${DJANGO_SQLITE_DIR}:/app/database
      - static_volume:/app/staticfiles
    ports:
      - "8000:8000"
@@ -24,6 +25,7 @@ services:
      - static_volume:/app/staticfiles:ro
      - ${NGINX_CRT}:/etc/nginx/certs/server.crt:ro
      - ${NGINX_KEY}:/etc/nginx/certs/server.key:ro
+     - /var/www/certbot:/var/www/certbot:ro
    restart: unless-stopped
    environment:
      - NGINX_WORKERS=AUTO
