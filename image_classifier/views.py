@@ -1,4 +1,7 @@
+import io
+import base64
 import numpy as np
+
 from django.views.generic import FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from PIL import Image
@@ -17,6 +20,11 @@ class PLIPView(LoginRequiredMixin, FormView):
             pil_img = Image.open(uploaded_file).convert('RGB')
             pil_img.thumbnail((400, 400), Image.Resampling.LANCZOS)
 
+            # Save resized image file for output with results
+            buffer = io.BytesIO()
+            pil_img.save(buffer, format="JPEG")
+            image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+
             patch = np.array(pil_img)
             plip_classifier = PLIPClassifier()
 
@@ -29,8 +37,9 @@ class PLIPView(LoginRequiredMixin, FormView):
 
         else:
             result = "No file uploaded"
+            image_base64 = None
 
         # Re-render the page with the result
         return self.render_to_response(
-            self.get_context_data(form=form, result=result)
+            self.get_context_data(form=form, result=result, thumbnail=image_base64)
         )
