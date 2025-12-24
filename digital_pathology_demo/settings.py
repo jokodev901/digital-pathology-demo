@@ -142,7 +142,6 @@ LOGIN_URL = 'login'
 LOGOUT_REDIRECT_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
 
-
 # Logging settings
 LOGLEVEL = os.environ.get('DJANGO_LOGLEVEL', 'DEBUG')
 LOGGING = {

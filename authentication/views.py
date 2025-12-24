@@ -23,7 +23,3 @@ class RegisterUser(CreateView):
             return redirect(next_url)
 
         return redirect(settings.LOGIN_REDIRECT_URL)
-
-
-class HomeView(LoginRequiredMixin, TemplateView):
-    template_name = 'home_temp.html'

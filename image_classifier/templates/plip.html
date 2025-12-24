@@ -1,0 +1,20 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <title>PLIP image classification</title>
+</head>
+<body>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Analyze Image</button>
+    </form>
+    {% if result %}
+    <hr>
+    <h3>Results:</h3>
+        <p>{{ result }}</p>
+    {% endif %}
+</body>
+{% endblock %}
