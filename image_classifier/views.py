@@ -14,8 +14,10 @@ class PLIPView(LoginRequiredMixin, FormView):
         uploaded_file = self.request.FILES['image']
 
         if uploaded_file:
-            pil_image = Image.open(uploaded_file).convert('RGB')
-            patch = np.array(pil_image)
+            pil_img = Image.open(uploaded_file).convert('RGB')
+            pil_img.thumbnail((400, 400), Image.Resampling.LANCZOS)
+
+            patch = np.array(pil_img)
             plip_classifier = PLIPClassifier()
 
             # hardcoded for testing, will parameterize later
