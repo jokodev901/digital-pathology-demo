@@ -15,6 +15,14 @@ class PLIPView(LoginRequiredMixin, FormView):
 
     def form_valid(self, form):
         uploaded_file = self.request.FILES['image']
+        form_labels = form.cleaned_data['labels']
+
+        if form_labels:
+            labels = form_labels.split(',')
+
+        else:
+            labels = ["adipose", "background", "debris", "lymphocytes", "mucus", "smooth muscle", "normal colon mucosa",
+                      "cancer - associated stroma", "colorectal adenocarcinoma epithelium"]
 
         if uploaded_file:
             pil_img = Image.open(uploaded_file).convert('RGB')
@@ -27,10 +35,6 @@ class PLIPView(LoginRequiredMixin, FormView):
 
             patch = np.array(pil_img)
             plip_classifier = PLIPClassifier()
-
-            # hardcoded for testing, will parameterize later
-            labels = ["adipose", "background", "debris", "lymphocytes", "mucus", "smooth muscle", "normal colon mucosa",
-                      "cancer - associated stroma", "colorectal adenocarcinoma epithelium"]
 
             prediction = plip_classifier.predict(patch, candidate_labels=labels)
             result = f"{prediction['predicted_label']} {prediction['confidence']:.4f}"
