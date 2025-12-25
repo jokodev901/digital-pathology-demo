@@ -5,19 +5,19 @@
     <meta charset="UTF-8">
     <title>PLIP image classification</title>
 </head>
-<body>
+<article>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
+        {% if result %}
+        <hr>
+            <h3>Results:</h3>
+                <img src="data:image/jpeg;base64,{{ thumbnail }}"
+                     alt="Uploaded Image"
+                     style="max-width: 100%; border: 1px solid #ddd; border-radius: 4px;">
+                <p>{{ result }}</p>
+        {% endif %}
         {{ form.as_p }}
         <button type="submit">Analyze Image</button>
     </form>
-    {% if result %}
-    <hr>
-    <h3>Results:</h3>
-        <img src="data:image/jpeg;base64,{{ thumbnail }}"
-             alt="Uploaded Image"
-             style="max-width: 100%; border: 1px solid #ddd; border-radius: 4px;">
-        <p>{{ result }}</p>
-    {% endif %}
-</body>
+</article>
 {% endblock %}
