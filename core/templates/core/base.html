@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Django App</title>
+    <title>DigiPathDemo</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
     <style>
         body { padding-top: 2rem; }
@@ -17,13 +17,20 @@
     <main class="container">
         <header>
             <nav>
-                <ul><li><strong>Digital Pathology Demo</strong></li></ul>
+                <!--<ul><li><strong>DigiPath Home</strong></li></ul>-->
+                {% if user.is_authenticated %}
+                    <ul><li><a href="{% url 'home' %}">DigiPath Home</a></li></ul>
+                {% else %}
+                    <ul><li><Strong>DigiPath</Strong></li></ul>
+                {% endif %}
                 <ul>
+                    <!--  Disabled theme switching for now
                     {% if theme == 'light' %}
                         <li><a href="{% url 'set_theme' %}?theme=dark">🌙</a></li>
                     {% else %}
                         <li><a href="{% url 'set_theme' %}?theme=light">☀️</a></li>
                     {% endif %}
+                    -->
 
                     {% if user.is_authenticated %}
                         <li>Logged in as: {{ user.username }}</li>
