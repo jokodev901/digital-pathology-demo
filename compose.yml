@@ -18,6 +18,7 @@ services:
      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
    env_file:
      - .env
+   restart: unless-stopped
 
  nginx:
    image: nginx:stable-alpine
@@ -30,11 +31,11 @@ services:
      - ${NGINX_CRT}:/etc/nginx/certs/server.crt:ro
      - ${NGINX_KEY}:/etc/nginx/certs/server.key:ro
      - /var/www/certbot:/var/www/certbot:ro
-   restart: unless-stopped
    environment:
      - NGINX_WORKERS=AUTO
    depends_on:
      - django-web
+   restart: unless-stopped
 
 volumes:
  static_volume:
