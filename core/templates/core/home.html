@@ -1,13 +1,8 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-<head>
-    <meta charset="UTF-8">
-    <title>Home</title>
-</head>
-<body>
-    <ul>
-        <li><a href="{% url 'plip' %}">PLIP zero shot image classification</a></li>
-    </ul>
-</body>
+    {% for app in apps %}
+            {% url app.url as action_url %}
+            {% include "core/_app_card.html" with app_url=action_url title=app.title tagline=app.tagline description=app.description metadata=app.metadata resources=app.resources %}
+    {% endfor %}
 {% endblock %}

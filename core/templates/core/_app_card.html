@@ -1,0 +1,31 @@
+<article>
+  <header>
+    <hgroup>
+      <h2><a href="{{ app_url }}">{{ title }}</a></h2>
+      <p>{{ tagline }}</p>
+    </hgroup>
+  </header>
+
+  <div class="grid">
+    <section>
+      <p>{{ description }}</p>
+    </section>
+
+    <aside>
+      <p style="margin-bottom: 0.25rem;"><small><strong>RESOURCES</strong></small></p>
+      <ul class="resource-list">
+        {% for label, link in resources.items %}
+          <li>
+            <a href="{{ link }}" target="_blank" class="secondary">
+              <small>{{ label }}</small>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </aside>
+  </div>
+
+  <footer>
+    <small>{{ metadata }}</small>
+  </footer>
+</article>

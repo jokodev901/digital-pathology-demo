@@ -1,0 +1,23 @@
+[
+  {
+    "title": "PLIP Zero Shot Classification",
+    "tagline": "Pathology Language & Image Pretraining",
+    "url": "plip",
+    "description": "Upload images to a locally-hosted instance of the PLIP model trained on the OpenPath dataset.\nImage thumbnails and prediction results are stored in a browsable database.\nModel is intended for exploring arbitrary image classification, not for production use.",
+    "metadata": "Category: Pathology Classification & Research",
+    "resources": {
+      "HuggingFace Repository": "https://huggingface.co/vinid/plip",
+      "Model Documentation": "https://huggingface.co/spaces/vinid/webplip"
+    }
+  },
+  {
+    "title": "Example Tool",
+    "tagline": "Filler description",
+    "url": "home",
+    "description": "A placeholder for another app",
+    "metadata": "Category: Research",
+    "resources": {
+      "Docs": "https://google.com"
+    }
+  }
+]

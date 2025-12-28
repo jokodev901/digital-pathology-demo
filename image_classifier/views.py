@@ -22,7 +22,7 @@ class PLIPView(LoginRequiredMixin, FormView):
 
         else:
             labels = ["adipose", "background", "debris", "lymphocytes", "mucus", "smooth muscle", "normal colon mucosa",
-                      "cancer - associated stroma", "colorectal adenocarcinoma epithelium"]
+                      "cancer-associated stroma", "colorectal adenocarcinoma epithelium"]
 
         if uploaded_file:
             pil_img = Image.open(uploaded_file).convert('RGB')

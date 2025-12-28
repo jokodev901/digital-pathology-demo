@@ -1,15 +1,24 @@
-from django.shortcuts import redirect
+import json
+from pathlib import Path
+from django.conf import settings
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 
-def set_theme(request):
-    # Set dark/light theme in session, defaults to dark
-    theme = request.GET.get('theme', 'dark')
-    request.session['theme'] = theme
-    # Redirect back to the previous page after toggle, or home if no referrer
-    return redirect(request.META.get('HTTP_REFERER', '/'))
+# Import apps.json for building app cards on the home page
+# app card data is cached and built out once at django web service start
+def load_apps(path):
+    with open(path, 'r') as f:
+        return json.load(f)
+
+JSON_PATH = Path(settings.BASE_DIR) / 'core' / 'data' / 'apps.json'
+APPS_CACHE = load_apps(JSON_PATH)
 
 
 class HomeView(LoginRequiredMixin, TemplateView):
     template_name = 'core/home.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['apps'] = APPS_CACHE
+        return context

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="{{ theme }}">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,30 +8,22 @@
     <style>
         body { padding-top: 2rem; }
         main.container { max-width: 1200px; }
-        article { max-width: 800px; margin-left: auto; margin-right: auto; width: 100%}
-        header { margin-bottom: 2rem; border-bottom: 1px solid #e1e1e1; padding-bottom: 1rem;}
-        form { max-width: 800px; background: transparent; padding: 2rem; border-radius: 8px; border: 1px solid #ddd; }
+        article { max-width: 1000px; margin-left: auto; margin-right: auto; width: 100% }
+        header { margin-bottom: 2rem; border-bottom: 1px solid #e1e1e1; padding-bottom: 1rem }
+        form { max-width: 1000px; background: transparent; padding: 2rem; border-radius: 8px; border: 1px solid #ddd }
+        ul.resource-list, ul.resource-list li {list-style: none; padding: 0; margin: 0; line-height: 1.2 }
     </style>
 </head>
 <body>
     <main class="container">
         <header>
             <nav>
-                <!--<ul><li><strong>DigiPath Home</strong></li></ul>-->
                 {% if user.is_authenticated %}
                     <ul><li><a href="{% url 'home' %}">DigiPath Home</a></li></ul>
                 {% else %}
                     <ul><li><Strong>DigiPath</Strong></li></ul>
                 {% endif %}
                 <ul>
-                    <!--  Disabled theme switching for now
-                    {% if theme == 'light' %}
-                        <li><a href="{% url 'set_theme' %}?theme=dark">🌙</a></li>
-                    {% else %}
-                        <li><a href="{% url 'set_theme' %}?theme=light">☀️</a></li>
-                    {% endif %}
-                    -->
-
                     {% if user.is_authenticated %}
                         <li>Logged in as: {{ user.username }}</li>
                         <li>
