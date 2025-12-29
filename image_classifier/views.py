@@ -1,6 +1,6 @@
 import io
 import base64
-import numpy as np
+import tempfile
 
 from django.views.generic import FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -24,26 +24,26 @@ class PLIPView(LoginRequiredMixin, FormView):
             labels = ["adipose", "background", "debris", "lymphocytes", "mucus", "smooth muscle", "normal colon mucosa",
                       "cancer-associated stroma", "colorectal adenocarcinoma epithelium"]
 
-        if uploaded_file:
-            pil_img = Image.open(uploaded_file).convert('RGB')
-            pil_img.thumbnail((400, 400), Image.Resampling.LANCZOS)
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_file:
+            for chunk in uploaded_file.chunks():
+                temp_file.write(chunk)
 
-            # Save resized image file for output with results
-            buffer = io.BytesIO()
-            pil_img.save(buffer, format="JPEG")
-            image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+            temp_path = temp_file.name
 
-            patch = np.array(pil_img)
-            plip_classifier = PLIPClassifier()
+        pil_img = Image.open(temp_path).convert('RGB')
+        plip_classifier = PLIPClassifier()
+        prediction = plip_classifier.predict(pil_img, candidate_labels=labels)
 
-            prediction = plip_classifier.predict(patch, candidate_labels=labels)
-            result = f"{prediction['predicted_label']} {prediction['confidence']:.4f}"
+        # Save resized image file for output with results
+        pil_img.thumbnail((400, 400), Image.Resampling.LANCZOS)
+        buffer = io.BytesIO()
+        pil_img.save(buffer, format="JPEG")
+        image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
 
-        else:
-            result = "No file uploaded"
-            image_base64 = None
+        results_sorted = dict(sorted(prediction['detailed_scores'].items(), key=lambda item: item[1], reverse=True))
+        results_rounded = ', '.join([f"{key}: {round(value, 2)}" for key, value in results_sorted.items()])
 
         # Re-render the page with the result
         return self.render_to_response(
-            self.get_context_data(form=form, result=result, thumbnail=image_base64)
+            self.get_context_data(form=form, result=results_rounded, thumbnail=image_base64)
         )
