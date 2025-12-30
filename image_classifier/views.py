@@ -11,6 +11,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import ImageUploadForm
 from .services.plip import PLIPClassifier
 from .models import PLIPImage, PLIPSubmission, PLIPLabel, PLIPScore
+from .serializers.plip_serializers import PLIPSubmissionSerializer, PLIPScoreSerializer
 
 
 class PLIPView(LoginRequiredMixin, FormView):
@@ -83,12 +84,30 @@ class PLIPImageView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        image_queryset = PLIPImage.objects.all().order_by('id')
-        paginator = Paginator(image_queryset, self.page_size)
+        submission_queryset = PLIPSubmission.objects.select_related('image').all().prefetch_related('submission_scores__label').order_by('-id')
+
+        paginator = Paginator(submission_queryset, self.page_size)
         page_number = self.request.GET.get('page')
         page = paginator.get_page(page_number)
 
-        context['page_obj'] = page
-        # context['images'] = None
+        pagination_data = {'number': page.number,
+                           'num_pages': paginator.num_pages,
+                           'has_next': page.has_next,
+                           'has_previous': page.has_previous,
+                           'next_page_number': page.next_page_number,
+                           'previous_page_number': page.previous_page_number}
+
+        serialized_submissions = PLIPSubmissionSerializer(page, many=True).data
+
+        for submission in serialized_submissions:
+            scores_list = []
+
+            for score in submission['submission_scores']:
+                scores_list.append(f"{score['label']['label']}: {score['rounded_score']}")
+
+            submission['scores_str'] = '<br>'.join(scores_list)
+
+        context['submissions'] = serialized_submissions
+        context['pagination'] = pagination_data
 
         return context

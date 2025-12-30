@@ -14,6 +14,9 @@ class PLIPImage(models.Model):
         encoded = base64.b64encode(self.blob_image).decode('utf-8')
         return f"data:image/jpeg;base64,{encoded}"
 
+    def __str__(self):
+        return self.md5
+
 
 class PLIPLabel(models.Model):
     label = models.CharField(max_length=100, unique=True)
@@ -31,7 +34,11 @@ class PLIPSubmission(models.Model):
 class PLIPScore(models.Model):
     label = models.ForeignKey(PLIPLabel, on_delete=models.CASCADE)
     score = models.FloatField()
-    submission = models.ForeignKey(PLIPSubmission, on_delete=models.CASCADE)
+    submission = models.ForeignKey(PLIPSubmission, on_delete=models.CASCADE, related_name='submission_scores')
+
+    @property
+    def rounded_score(self):
+        return round(self.score, 2)
 
     def __str__(self):
         return self.score
