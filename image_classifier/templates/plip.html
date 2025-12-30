@@ -1,17 +1,14 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-<head>
-    <meta charset="UTF-8">
-    <title>PLIP image classification</title>
-</head>
 <article>
+    {% include "_tab_header.html" %}
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {% if result %}
         <hr>
             <h3>Results:</h3>
-                <img src="data:image/jpeg;base64,{{ thumbnail }}"
+                <img src={{ thumbnail }}
                      alt="Uploaded Image"
                      style="max-width: 100%; border: 1px solid #ddd; border-radius: 4px;">
                 <p>{{ result }}</p>

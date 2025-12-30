@@ -1,3 +1,37 @@
+import base64
 from django.db import models
+from authentication.models import User
 
-# Create your models here.
+
+class PLIPImage(models.Model):
+    blob_image = models.BinaryField()
+    md5 = models.CharField(max_length=32)
+
+    @property
+    def image_base64(self):
+        if not self.blob_image:
+            return ""
+        encoded = base64.b64encode(self.blob_image).decode('utf-8')
+        return f"data:image/jpeg;base64,{encoded}"
+
+
+class PLIPLabel(models.Model):
+    label = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.label
+
+
+class PLIPSubmission(models.Model):
+    image = models.ForeignKey(PLIPImage, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    filename = models.CharField(max_length=100)
+
+
+class PLIPScore(models.Model):
+    label = models.ForeignKey(PLIPLabel, on_delete=models.CASCADE)
+    score = models.FloatField()
+    submission = models.ForeignKey(PLIPSubmission, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.score
