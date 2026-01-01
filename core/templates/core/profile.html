@@ -1,0 +1,19 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<h2>User Profile: {{ user.username }}</h2>
+    <form method="post">
+    {% csrf_token %}
+    <h3>API Access</h3>
+    {% if api_key %}
+        <p>Your current API Key:</p>
+            <code>{{ api_key }}</code>
+        <p><small>Keep this key secret. If you suspect it's leaked, rotate it below.</small></p>
+    {% else %}
+        <p>No API Key has been generated for this account.</p>
+    {% endif %}
+
+        <button type="submit" name="generate_token">
+            {% if api_key %}Rotate API Key{% else %}Generate API Key{% endif %}
+        </button>
+    </form>
+{% endblock %}

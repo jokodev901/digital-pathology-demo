@@ -20,12 +20,12 @@ class PLIPLabelSerializer(serializers.ModelSerializer):
 
 
 class PLIPScoreSerializer(serializers.ModelSerializer):
-    label = PLIPLabelSerializer(read_only=True)
+    label = serializers.SlugRelatedField(many=False, read_only=True, slug_field='label')
     rounded_score = ReadOnlyField()
 
     class Meta:
         model = PLIPScore
-        fields = '__all__'
+        exclude = ('submission',)
 
 
 class PLIPSubmissionSerializer(serializers.ModelSerializer):
@@ -35,3 +35,16 @@ class PLIPSubmissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = PLIPSubmission
         fields = '__all__'
+
+
+class PLIPAPIInputSerializer(serializers.Serializer):
+    image = serializers.ImageField(required=True)
+    labels = serializers.CharField(required=True, allow_blank=True, allow_null=False, max_length=255)
+
+
+class PLIPAPIOutputSerializer(serializers.ModelSerializer):
+    submission_scores = PLIPScoreSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = PLIPSubmission
+        exclude = ('image',)

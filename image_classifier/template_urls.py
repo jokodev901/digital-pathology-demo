@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import PLIPView, PLIPImageView
+from .template_views import PLIPView, PLIPImageView
 
 
 urlpatterns = [

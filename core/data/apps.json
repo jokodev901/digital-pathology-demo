@@ -12,13 +12,13 @@
     }
   },
   {
-    "title": "Example Tool",
-    "tagline": "Filler description",
-    "url": "home",
-    "description": "A placeholder for another app",
-    "metadata": "Category: Research",
+    "title": "PLIP Zero Shot API Browser",
+    "tagline": "",
+    "url": "api-v1-root",
+    "description": "Browseable API reference for PLIP classification endpoints",
+    "metadata": "Category: API",
     "resources": {
-      "Docs": "https://google.com"
+      "Django REST Framework Documentation": "https://www.django-rest-framework.org"
     }
   }
 ]

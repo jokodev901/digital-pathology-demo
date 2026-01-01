@@ -11,6 +11,7 @@
         article { max-width: 1000px; margin-left: auto; margin-right: auto; width: 100% }
         header { margin-bottom: 2rem; border-bottom: 1px solid #e1e1e1; padding-bottom: 1rem }
         form { max-width: 1000px; background: transparent; padding: 2rem; border-radius: 8px; border: 1px solid #ddd }
+        form.navbutton { display:inline; border:none; padding:0 }
         ul.resource-list, ul.resource-list li {list-style: none; padding: 0; margin: 0; line-height: 1.2 }
     </style>
 </head>
@@ -19,22 +20,31 @@
         <header>
             <nav>
                 {% if user.is_authenticated %}
-                    <ul><li><a href="{% url 'home' %}">DigiPath Home</a></li></ul>
+                    <ul>
+                        <form class='navbutton' action="{% url 'home' %}">
+                            <button type="submit" class="outline contrast">DigiPath Home</button>
+                        </form>
+                    </ul>
                 {% else %}
                     <ul><li><Strong>DigiPath</Strong></li></ul>
                 {% endif %}
                 <ul>
                     {% if user.is_authenticated %}
-                        <li>Logged in as: {{ user.username }}</li>
+                        <li>Welcome {{ user.username }}</li>
                         <li>
-                            <form action="{% url 'logout' %}" method="post" style="display:inline; background:none; border:none; padding:0;">
+                            <form class='navbutton' action="{% url 'profile' %}">
+                                <button type="submit" class="outline contrast">Profile</button>
+                            </form>
+                        </li>
+                        <li>
+                            <form class='navbutton'  action="{% url 'logout' %}" method="post">
                                 {% csrf_token %}
-                                <button type="submit" class="outline contrast" style="padding: 5px 10px;">Logout</button>
+                                <button type="submit" class="outline contrast">Logout</button>
                             </form>
                         </li>
                     {% else %}
                         <li><a href="{% url 'login' %}">Login</a></li>
-                        <li><a href="{% url 'signup' %}" class="outline">Sign Up</a></li>
+                        <li><a href="{% url 'register' %}" class="outline">Register</a></li>
                     {% endif %}
                 </ul>
             </nav>

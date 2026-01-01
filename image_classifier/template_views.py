@@ -4,6 +4,7 @@ import hashlib
 
 from PIL import Image
 
+from django.db import transaction
 from django.core.paginator import Paginator
 from django.views.generic import FormView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -11,7 +12,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import ImageUploadForm
 from .services.plip import PLIPClassifier
 from .models import PLIPImage, PLIPSubmission, PLIPLabel, PLIPScore
-from .serializers.plip_serializers import PLIPSubmissionSerializer, PLIPScoreSerializer
+from .serializers.plip_serializers import PLIPSubmissionSerializer
 
 
 class PLIPView(LoginRequiredMixin, FormView):
@@ -46,31 +47,33 @@ class PLIPView(LoginRequiredMixin, FormView):
 
         # Sort results and create clean string of rounded values for output
         results_sorted = dict(sorted(prediction['detailed_scores'].items(), key=lambda item: item[1], reverse=True))
-        results_str = ', '.join([f"{key}: {round(value, 2)}" for key, value in results_sorted.items()])
+        results_str = '<br>'.join([f"{key}: {round(value, 2)}" for key, value in results_sorted.items()])
 
         pil_img.thumbnail((224, 224), Image.Resampling.LANCZOS)
-        img_buffer = io.BytesIO()
-        pil_img.save(img_buffer, format="JPEG")
+        thumb_buffer = io.BytesIO()
+        pil_img.save(thumb_buffer, format="JPEG")
 
-
-        # Only one instance of an image file is needed, so retrieve based on md5 if it exists, otherwise create
-        image_obj, created = PLIPImage.objects.get_or_create(
-            md5=md5_checksum,
-            defaults={"blob_image": img_buffer.getvalue()},
-        )
-
-        submission_obj = PLIPSubmission.objects.create(filename=uploaded_file.name, image=image_obj, user=self.request.user)
-
-        for key, value in results_sorted.items():
-            label_obj, created = PLIPLabel.objects.get_or_create(
-                label=key
+        # Execute statements with atomicity to ensure no partial relationships are created
+        with transaction.atomic():
+            # Only one instance of an image file is needed, so retrieve based on md5 if it exists, otherwise create
+            image_obj, created = PLIPImage.objects.get_or_create(
+                md5=md5_checksum,
+                defaults={"blob_image": thumb_buffer.getvalue()},
             )
 
-            PLIPScore.objects.create(
-                label=label_obj,
-                score=value,
-                submission=submission_obj,
-            )
+            submission_obj = PLIPSubmission.objects.create(filename=uploaded_file.name,
+                                                           image=image_obj, user=self.request.user)
+
+            for key, value in results_sorted.items():
+                label_obj, created = PLIPLabel.objects.get_or_create(
+                    label=key
+                )
+
+                PLIPScore.objects.create(
+                    label=label_obj,
+                    score=value,
+                    submission=submission_obj,
+                )
 
         # Re-render the page with the results
         return self.render_to_response(
@@ -84,7 +87,8 @@ class PLIPImageView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        submission_queryset = PLIPSubmission.objects.select_related('image').all().prefetch_related('submission_scores__label').order_by('-id')
+        submission_queryset = (PLIPSubmission.objects.select_related('image').all()
+                               .prefetch_related('submission_scores__label').order_by('-id'))
 
         paginator = Paginator(submission_queryset, self.page_size)
         page_number = self.request.GET.get('page')
@@ -103,7 +107,7 @@ class PLIPImageView(LoginRequiredMixin, TemplateView):
             scores_list = []
 
             for score in submission['submission_scores']:
-                scores_list.append(f"{score['label']['label']}: {score['rounded_score']}")
+                scores_list.append(f"{score['label']}: {score['rounded_score']}")
 
             submission['scores_str'] = '<br>'.join(scores_list)
 
