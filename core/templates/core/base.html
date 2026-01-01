@@ -21,9 +21,7 @@
             <nav>
                 {% if user.is_authenticated %}
                     <ul>
-                        <form class='navbutton' action="{% url 'home' %}">
-                            <button type="submit" class="outline contrast">DigiPath Home</button>
-                        </form>
+                        <a href="{% url 'home' %}">DigiPath Home</a>
                     </ul>
                 {% else %}
                     <ul><li><Strong>DigiPath</Strong></li></ul>
@@ -32,19 +30,17 @@
                     {% if user.is_authenticated %}
                         <li>Welcome {{ user.username }}</li>
                         <li>
-                            <form class='navbutton' action="{% url 'profile' %}">
-                                <button type="submit" class="outline contrast">Profile</button>
-                            </form>
+                            <a href="{% url 'profile' %}">Profile</a>
                         </li>
                         <li>
-                            <form class='navbutton'  action="{% url 'logout' %}" method="post">
+                            <form class='navbutton' action="{% url 'logout' %}" method="post">
                                 {% csrf_token %}
                                 <button type="submit" class="outline contrast">Logout</button>
                             </form>
                         </li>
                     {% else %}
-                        <li><a href="{% url 'login' %}">Login</a></li>
-                        <li><a href="{% url 'register' %}" class="outline">Register</a></li>
+                        <li><a href="{% url 'login' %}" class="outline contrast" role="button">Login</a></li>
+                        <li><a href="{% url 'register' %}" class="outline contrast" role="button">Register</a></li>
                     {% endif %}
                 </ul>
             </nav>
