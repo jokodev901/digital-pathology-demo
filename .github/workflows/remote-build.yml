@@ -20,8 +20,8 @@ jobs:
             # 1. Pull latest code
             sudo git pull origin master
             
-            # 2. Build and restart containers            
-            docker-compose up --build -d
+            # 2. Build and restart containers
+            docker-compose up -d
             
             # 4. Critical Cleanup
             # Deletes all 'dangling' images left over from the build
