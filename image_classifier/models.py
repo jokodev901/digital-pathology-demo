@@ -30,6 +30,9 @@ class PLIPSubmission(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     filename = models.CharField(max_length=100)
 
+    def __str__(self):
+        return str(self.id)
+
 
 class PLIPScore(models.Model):
     label = models.ForeignKey(PLIPLabel, on_delete=models.CASCADE)
@@ -41,4 +44,4 @@ class PLIPScore(models.Model):
         return round(self.score, 2)
 
     def __str__(self):
-        return self.score
+        return str(self.score)
