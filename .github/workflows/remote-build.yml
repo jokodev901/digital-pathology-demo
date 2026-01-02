@@ -1,0 +1,28 @@
+name: Remote Build and Deploy
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Execute Remote Build via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST_DNS }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /opt/digital-pathology-demo
+            
+            # 1. Pull latest code
+            git pull origin master
+            
+            # 2. Build and restart containers            
+            docker-compose up --build -d --quiet
+            
+            # 4. Critical Cleanup
+            # Deletes all 'dangling' images left over from the build
+            docker image prune -f
