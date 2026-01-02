@@ -17,12 +17,11 @@ jobs:
           script: |
             cd /opt/digital-pathology-demo
             
-            # 1. Pull latest code
+            # Pull latest code
             sudo git pull origin master
             
-            # 2. Build and restart containers
-            docker-compose up -d
+            # Restart containers
+            docker-compose up -d            
             
-            # 4. Critical Cleanup
-            # Deletes all 'dangling' images left over from the build
+            # Delete dangling images
             docker image prune -f
