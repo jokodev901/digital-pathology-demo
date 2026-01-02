@@ -28,7 +28,9 @@ class PLIPImageAdmin(admin.ModelAdmin):
 
 @admin.register(PLIPSubmission)
 class PLIPSubmissionAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('id', 'filename', 'user', 'created_at')
+    search_fields = ('id', 'filename')
+
 
 @admin.register(PLIPScore)
 class PLIPScoreAdmin(admin.ModelAdmin):

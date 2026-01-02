@@ -1,9 +1,10 @@
 import base64
 from django.db import models
+from core.models import TimestampBaseModel
 from authentication.models import User
 
 
-class PLIPImage(models.Model):
+class PLIPImage(TimestampBaseModel):
     blob_image = models.BinaryField()
     md5 = models.CharField(max_length=32, db_index=True)
 
@@ -25,7 +26,7 @@ class PLIPLabel(models.Model):
         return self.label
 
 
-class PLIPSubmission(models.Model):
+class PLIPSubmission(TimestampBaseModel):
     image = models.ForeignKey(PLIPImage, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     filename = models.CharField(max_length=100)

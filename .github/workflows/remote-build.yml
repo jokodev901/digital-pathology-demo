@@ -21,7 +21,7 @@ jobs:
             sudo git pull origin master
             
             # 2. Build and restart containers            
-            docker-compose up --build -d --quiet
+            docker-compose up --build -d
             
             # 4. Critical Cleanup
             # Deletes all 'dangling' images left over from the build
