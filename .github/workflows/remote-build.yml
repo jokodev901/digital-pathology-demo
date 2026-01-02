@@ -18,7 +18,7 @@ jobs:
             cd /opt/digital-pathology-demo
             
             # 1. Pull latest code
-            git pull origin master
+            sudo git pull origin master
             
             # 2. Build and restart containers            
             docker-compose up --build -d --quiet
