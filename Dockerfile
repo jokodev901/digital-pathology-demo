@@ -48,9 +48,3 @@ USER appuser
 
 # Expose the application port
 EXPOSE 8000
-
-# Run collectstatic to gather all static files
-# RUN python manage.py collectstatic --noinput
-
-# Start the application using Gunicorn
-# CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "5", "--timeout", "30",  "--forwarded-allow-ips", "*", "digital_pathology_demo.wsgi:application"]

@@ -6,7 +6,9 @@ from PIL import Image
 
 from django.db import transaction
 from django.db.models import Q
+from django.http import HttpResponse
 from django.core.paginator import Paginator
+from django.views import View
 from django.views.generic import FormView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
@@ -17,15 +19,24 @@ from .models import PLIPImage, PLIPSubmission, PLIPLabel, PLIPScore
 from .serializers.plip_serializers import PLIPSubmissionSerializer
 
 
-def add_filter_row(request):
+class AddFilterRowView(LoginRequiredMixin, View):
+    def get(self, request):
+        current_index = int(request.GET.get('current_index', 0))
+        return render(request, '_filter_row.html', {
+            'index': current_index + 1
+        })
+
+
+class UpdateFilterStateView(LoginRequiredMixin, View):
     """
-    Returns a new row of filter inputs.
-    Expects 'current_index' in GET to determine the next index.
+    Control PLIP filter window open/collapsed state
     """
-    current_index = int(request.GET.get('current_index', 0))
-    return render(request, '_filter_row.html', {
-        'index': current_index + 1
-    })
+    def get(self, request):
+        state = request.GET.get('state')
+        request.session['filters_expanded'] = (state == 'open')
+        # Explicitly mark the session as modified to ensure it's saved to the DB/Cache
+        request.session.modified = True
+        return HttpResponse(status=204)
 
 
 class PLIPView(LoginRequiredMixin, FormView):
@@ -143,6 +154,7 @@ class PLIPImageView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['filters_expanded'] = self.request.session.get('filters_expanded', True)
 
         # Get Filtered Data
         filtered_qs = self.get_queryset()

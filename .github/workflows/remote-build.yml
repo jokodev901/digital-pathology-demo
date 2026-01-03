@@ -21,6 +21,7 @@ jobs:
             sudo git pull origin master
             
             # Restart containers
+            docker-compose down -v
             docker-compose up -d
             
             # Delete dangling images

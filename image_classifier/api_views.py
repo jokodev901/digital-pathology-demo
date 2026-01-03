@@ -58,7 +58,7 @@ class PLIPAPIListView(APIView):
         if has_label_filters:
             q_final &= q_or_objects
 
-        queryset = queryset.filter(q_final)
+        queryset = queryset.filter(q_final).distinct()
 
         return queryset
 

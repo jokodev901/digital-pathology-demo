@@ -7,29 +7,35 @@
     {% include "_tab_header.html" %}
 
     <div class="filter-container" style="padding: 15px; margin-bottom: 20px;">
-        <form method="GET" action=".">
+        <details {% if filters_expanded %}open{% endif %}
+                 hx-get="{% url 'update-filter-state' %}"
+                 hx-trigger="toggle"
+                 hx-vals='js:{state: event.target.open ? "open" : "closed"}'>
 
-            <h3>Filters</h3>
+            <summary style="cursor: pointer; font-weight: bold; font-size: 1.2rem; margin-bottom: 10px;">
+                Filter Results
+            </summary>
 
-            <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee;">
-                <strong>Date Range:</strong>
-                <label>Start: <input type="date" name="min_date" value="{{ request.GET.min_date }}"></label>
-                <label>End: <input type="date" name="max_date" value="{{ request.GET.max_date }}"></label>
-            </div>
+            <form method="GET" action=".">
+                <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee;">
+                    <div style="display: flex; gap: 10px;">
+                    <label>Start date<input type="date" name="min_date" value="{{ request.GET.min_date }}"></label>
+                    <label>End date<input type="date" name="max_date" value="{{ request.GET.max_date }}"></label>
+                    </div>
+                </div>
 
-            <div id="dynamic-filters">
-                <strong>Label Criteria:</strong>
+                <div id="dynamic-filters">
+                    {% for row in filter_rows %}
+                        {% include "_filter_row.html" with index=row.index label_val=row.label min_val=row.min max_val=row.max %}
+                    {% endfor %}
+                </div>
 
-                {% for row in filter_rows %}
-                    {% include "_filter_row.html" with index=row.index label_val=row.label min_val=row.min max_val=row.max %}
-                {% endfor %}
-            </div>
-
-            <div style="margin-top: 15px;">
-                <button type="submit" class="btn btn-primary">Apply Filters</button>
-                <a href="." class="btn btn-secondary">Clear</a>
-            </div>
-        </form>
+                <div style="margin-top: 15px;">
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                    <a href="." class="btn btn-secondary">Clear</a>
+                </div>
+            </form>
+        </details>
     </div>
 
     {% include "_page_nav.html" %}
