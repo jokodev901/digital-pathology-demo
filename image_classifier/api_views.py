@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.reverse import reverse
+from rest_framework.pagination import PageNumberPagination
 
 from .models import PLIPSubmission, PLIPImage, PLIPLabel, PLIPScore
 from .serializers.plip_serializers import PLIPAPIListSerializer, PLIPAPIInputSerializer, PLIPAPIOutputSerializer, PLIPSubmissionSerializer
@@ -54,9 +55,13 @@ class PLIPAPIListView(APIView):
 
     def post(self, request):
         queryset = self.get_queryset()
-        output_serializer = PLIPAPIOutputSerializer(queryset, many=True)
+        page_size = 10
+        paginator = PageNumberPagination()
+        paginator.page_size = page_size
+        result_page = paginator.paginate_queryset(queryset, request)
+        output_serializer = PLIPAPIOutputSerializer(result_page, many=True)
 
-        return Response(output_serializer.data, status=status.HTTP_200_OK)
+        return paginator.get_paginated_response(output_serializer.data)
 
 
 class PLIPAPICreateView(generics.CreateAPIView):
@@ -77,7 +82,7 @@ class PLIPAPICreateView(generics.CreateAPIView):
             pil_img = Image.open(image_bin).convert('RGB')
 
             if input_labels:
-                labels = input_labels.split(',')
+                labels = [label.strip() for label in input_labels.split(',')]
 
             else:
                 labels = ["adipose", "background", "debris", "lymphocytes", "mucus", "smooth muscle",
@@ -88,7 +93,6 @@ class PLIPAPICreateView(generics.CreateAPIView):
             prediction = plip_classifier.predict(pil_img, candidate_labels=labels)
 
             results_sorted = dict(sorted(prediction['detailed_scores'].items(), key=lambda item: item[1], reverse=True))
-            # results_str = '<br>'.join([f"{key}: {round(value, 2)}" for key, value in results_sorted.items()])
 
             pil_img.thumbnail((224, 224), Image.Resampling.LANCZOS)
             thumb_buffer = io.BytesIO()

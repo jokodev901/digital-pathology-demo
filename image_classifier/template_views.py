@@ -37,7 +37,7 @@ class PLIPView(LoginRequiredMixin, FormView):
         plip_classifier = PLIPClassifier()
 
         if form_labels:
-            labels = form_labels.split(',')
+            labels = [label.strip() for label in form_labels.split(',')]
 
         else:
             labels = ["adipose", "background", "debris", "lymphocytes", "mucus", "smooth muscle", "normal colon mucosa",

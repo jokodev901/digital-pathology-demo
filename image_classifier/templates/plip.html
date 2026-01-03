@@ -11,12 +11,14 @@
                     <th>Uploaded Image</th>
                     <th>Classifications</th>
                 </tr></thead>
-            <tbody><tr>
-                <td><img src={{ thumbnail }}
-                     alt="Uploaded Image"
-                     style="max-width: 100%; border: 1px solid #ddd; border-radius: 4px;"></td>
-                <td>{{ result|safe }}</td>
-            </tr></tbody>
+                <tbody>
+                    <tr>
+                        <td><img src={{ thumbnail }}
+                             alt="Uploaded Image"
+                             style="max-width: 100%; border: 1px solid #ddd; border-radius: 4px;"></td>
+                        <td>{{ result|safe }}</td>
+                    </tr>
+                </tbody>
             </table>
         {% endif %}
         {{ form.as_p }}

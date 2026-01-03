@@ -3,13 +3,13 @@
     <li>
       <a href="{% url 'plip' %}"
          class="{% if request.resolver_match.url_name == 'plip' %}secondary{% else %}outline contrast{% endif %}">
-         📤 File Upload
+         📤 Image Upload
       </a>
     </li>
     <li>
       <a href="{% url 'plip_data' %}"
          class="{% if request.resolver_match.url_name == 'plip_data' %}secondary{% else %}outline contrast{% endif %}">
-         📂 Browse Data
+         📂 Browse Results
       </a>
     </li>
   </ul>
