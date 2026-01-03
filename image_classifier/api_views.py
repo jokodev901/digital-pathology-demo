@@ -4,6 +4,7 @@ import io
 from PIL import Image
 
 from django.db import transaction
+from django.db.models import Q
 
 from rest_framework import generics, status
 from rest_framework.views import APIView
@@ -11,17 +12,65 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.reverse import reverse
+from rest_framework.pagination import PageNumberPagination
 
 from .models import PLIPSubmission, PLIPImage, PLIPLabel, PLIPScore
-from .serializers.plip_serializers import PLIPSubmissionSerializer, PLIPAPIInputSerializer, PLIPAPIOutputSerializer
+from .serializers.plip_serializers import PLIPAPIListSerializer, PLIPAPIInputSerializer, PLIPAPIOutputSerializer, PLIPSubmissionSerializer
 from .services.plip import PLIPClassifier
 
 
-class PLIPAPIListView(generics.ListAPIView):
+class PLIPAPIListView(APIView):
     permission_classes = (IsAuthenticated,)
-    serializer_class = PLIPSubmissionSerializer
-    queryset = (PLIPSubmission.objects.select_related('image').all()
-                .prefetch_related('submission_scores__label').order_by('-id'))
+    serializer_class = PLIPAPIListSerializer
+
+    def get_queryset(self):
+        queryset = (PLIPSubmission.objects.select_related('image').all()
+                    .prefetch_related('submission_scores__label').order_by('-id'))
+
+        q_and_objects = Q()
+        q_or_objects = Q()
+        has_label_filters = False
+
+        if 'min_date' in self.request.data:
+            q_and_objects &= Q(created_at__gte=self.request.data['min_date'])
+
+        if 'max_date' in self.request.data:
+            q_and_objects &= Q(created_at__lte=self.request.data['max_date'])
+
+        if 'labels' in self.request.data:
+            for obj in self.request.data['labels']:
+                q_label_object = Q()
+
+                if 'label' in obj:
+                    has_label_filters = True
+                    q_label_object &= Q(submission_scores__label__label__icontains=obj['label'])
+
+                    if 'min' in obj:
+                        q_label_object &= Q(submission_scores__score__gte=obj['min'])
+                    if 'max' in obj:
+                        q_label_object &= Q(submission_scores__score__lte=obj['max'])
+
+                q_or_objects |= q_label_object
+
+        # Combine: Dates AND (Label A OR Label B)
+        # Only include or objects if filters are present to avoid potentially appending falsey value or unneeded joins
+        q_final = q_and_objects
+        if has_label_filters:
+            q_final &= q_or_objects
+
+        queryset = queryset.filter(q_final)
+
+        return queryset
+
+    def post(self, request):
+        queryset = self.get_queryset()
+        page_size = 10
+        paginator = PageNumberPagination()
+        paginator.page_size = page_size
+        result_page = paginator.paginate_queryset(queryset, request)
+        output_serializer = PLIPAPIOutputSerializer(result_page, many=True)
+
+        return paginator.get_paginated_response(output_serializer.data)
 
 
 class PLIPAPICreateView(generics.CreateAPIView):
@@ -42,7 +91,7 @@ class PLIPAPICreateView(generics.CreateAPIView):
             pil_img = Image.open(image_bin).convert('RGB')
 
             if input_labels:
-                labels = input_labels.split(',')
+                labels = [label.strip() for label in input_labels.split(',')]
 
             else:
                 labels = ["adipose", "background", "debris", "lymphocytes", "mucus", "smooth muscle",
@@ -53,7 +102,6 @@ class PLIPAPICreateView(generics.CreateAPIView):
             prediction = plip_classifier.predict(pil_img, candidate_labels=labels)
 
             results_sorted = dict(sorted(prediction['detailed_scores'].items(), key=lambda item: item[1], reverse=True))
-            # results_str = '<br>'.join([f"{key}: {round(value, 2)}" for key, value in results_sorted.items()])
 
             pil_img.thumbnail((224, 224), Image.Resampling.LANCZOS)
             thumb_buffer = io.BytesIO()

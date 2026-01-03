@@ -37,7 +37,7 @@ class PLIPSubmission(TimestampBaseModel):
 
 class PLIPScore(models.Model):
     label = models.ForeignKey(PLIPLabel, on_delete=models.CASCADE)
-    score = models.FloatField()
+    score = models.FloatField(db_index=True)
     submission = models.ForeignKey(PLIPSubmission, on_delete=models.CASCADE, related_name='submission_scores')
 
     @property

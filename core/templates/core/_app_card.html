@@ -1,27 +1,27 @@
 <article>
-  <header>
-    <hgroup>
-      <h2><a href="{{ app_url }}">{{ title }}</a></h2>
-      <p>{{ tagline }}</p>
-    </hgroup>
-  </header>
+    <header>
+        <hgroup>
+            <h2><a href="{{ app_url }}">{{ title }}</a></h2>
+            <p>{{ tagline }}</p>
+        </hgroup>
+    </header>
     <section>
-      <p>{{ description|safe }}</p>
+        <p>{{ description|safe }}</p>
     </section>
 
     <aside>
-      <p style="margin-bottom: 0.25rem;"><small><strong>RESOURCES</strong></small></p>
-      <ul class="resource-list">
+        <p style="margin-bottom: 0.25rem;"><small><strong>RESOURCES</strong></small></p>
+        <ul class="resource-list">
         {% for label, link in resources.items %}
-          <li>
-            <a href="{{ link }}" target="_blank" class="secondary">
-              <small>{{ label }}</small>
-            </a>
-          </li>
+            <li>
+                <a href="{{ link }}" target="_blank" class="secondary">
+                  <small>{{ label }}</small>
+                </a>
+            </li>
         {% endfor %}
-      </ul>
+        </ul>
     </aside>
-  <footer>
-    <small>{{ metadata }}</small>
-  </footer>
+    <footer>
+        <small>{{ metadata }}</small>
+    </footer>
 </article>
