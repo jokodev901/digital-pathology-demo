@@ -1,9 +1,39 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
+<script src="https://unpkg.com/htmx.org@1.9.6"></script>
+
 <article>
     {% include "_tab_header.html" %}
+
+    <div class="filter-container" style="padding: 15px; margin-bottom: 20px;">
+        <form method="GET" action=".">
+
+            <h3>Filters</h3>
+
+            <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee;">
+                <strong>Date Range:</strong>
+                <label>Start: <input type="date" name="min_date" value="{{ request.GET.min_date }}"></label>
+                <label>End: <input type="date" name="max_date" value="{{ request.GET.max_date }}"></label>
+            </div>
+
+            <div id="dynamic-filters">
+                <strong>Label Criteria:</strong>
+
+                {% for row in filter_rows %}
+                    {% include "_filter_row.html" with index=row.index label_val=row.label min_val=row.min max_val=row.max %}
+                {% endfor %}
+            </div>
+
+            <div style="margin-top: 15px;">
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                <a href="." class="btn btn-secondary">Clear</a>
+            </div>
+        </form>
+    </div>
+
     {% include "_page_nav.html" %}
+
     <table>
         <thead>
             <tr>
@@ -14,15 +44,17 @@
         <tbody>
             {% for obj in submissions %}
             <tr>
-                <td><img src={{ obj.image.image_base64 }}
+                <td><img src="{{ obj.image.image_base64 }}"
                          alt="Uploaded Image"
                          style="max-width: 100%; border: 1px solid #ddd; border-radius: 4px;"></td>
                 <td>{{ obj.scores_str|safe }}</td>
-                {% empty %}
+            {% empty %}
+                <td colspan="2">No submissions found matching your criteria.</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+
     {% include "_page_nav.html" %}
 </article>
 {% endblock %}

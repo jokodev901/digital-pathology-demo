@@ -29,6 +29,7 @@ class PLIPAPIListView(APIView):
 
         q_and_objects = Q()
         q_or_objects = Q()
+        has_label_filters = False
 
         if 'min_date' in self.request.data:
             q_and_objects &= Q(created_at__gte=self.request.data['min_date'])
@@ -39,8 +40,11 @@ class PLIPAPIListView(APIView):
         if 'labels' in self.request.data:
             for obj in self.request.data['labels']:
                 q_label_object = Q()
+
                 if 'label' in obj:
+                    has_label_filters = True
                     q_label_object &= Q(submission_scores__label__label__icontains=obj['label'])
+
                     if 'min' in obj:
                         q_label_object &= Q(submission_scores__score__gte=obj['min'])
                     if 'max' in obj:
@@ -48,7 +52,12 @@ class PLIPAPIListView(APIView):
 
                 q_or_objects |= q_label_object
 
-        q_final = q_and_objects & q_or_objects
+        # Combine: Dates AND (Label A OR Label B)
+        # Only include or objects if filters are present to avoid potentially appending falsey value or unneeded joins
+        q_final = q_and_objects
+        if has_label_filters:
+            q_final &= q_or_objects
+
         queryset = queryset.filter(q_final)
 
         return queryset

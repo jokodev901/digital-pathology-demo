@@ -5,14 +5,27 @@ import hashlib
 from PIL import Image
 
 from django.db import transaction
+from django.db.models import Q
 from django.core.paginator import Paginator
 from django.views.generic import FormView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render
 
 from .forms import ImageUploadForm
 from .services.plip import PLIPClassifier
 from .models import PLIPImage, PLIPSubmission, PLIPLabel, PLIPScore
 from .serializers.plip_serializers import PLIPSubmissionSerializer
+
+
+def add_filter_row(request):
+    """
+    Returns a new row of filter inputs.
+    Expects 'current_index' in GET to determine the next index.
+    """
+    current_index = int(request.GET.get('current_index', 0))
+    return render(request, '_filter_row.html', {
+        'index': current_index + 1
+    })
 
 
 class PLIPView(LoginRequiredMixin, FormView):
@@ -85,33 +98,108 @@ class PLIPImageView(LoginRequiredMixin, TemplateView):
     template_name = 'plip_data_browser.html'
     page_size = 10
 
+    def get_queryset(self):
+        queryset = (PLIPSubmission.objects.select_related('image').all()
+                    .prefetch_related('submission_scores__label').order_by('-id'))
+
+        q_and_objects = Q()
+        q_or_objects = Q()
+
+        has_label_filters = False
+
+        min_date = self.request.GET.get('min_date')
+        max_date = self.request.GET.get('max_date')
+
+        if min_date:
+            q_and_objects &= Q(created_at__gte=min_date)
+        if max_date:
+            q_and_objects &= Q(created_at__lte=max_date)
+
+        # Dynamic Label Filters (label_0 ... label_4)
+        for i in range(5):
+            label = self.request.GET.get(f'label_{i}')
+            min_score = self.request.GET.get(f'min_{i}')
+            max_score = self.request.GET.get(f'max_{i}')
+
+            if label:
+                has_label_filters = True
+                q_label_object = Q(submission_scores__label__label__icontains=label)
+
+                if min_score:
+                    q_label_object &= Q(submission_scores__score__gte=float(min_score))
+                if max_score:
+                    q_label_object &= Q(submission_scores__score__lte=float(max_score))
+
+                # Multiple label/score filters are evaluated as ORs
+                q_or_objects |= q_label_object
+
+        # Combine: Dates AND (Label A OR Label B)
+        # Only include or objects if filters are present to avoid potentially appending falsey value or unneeded joins
+        q_final = q_and_objects
+        if has_label_filters:
+            q_final &= q_or_objects
+
+        return queryset.filter(q_final).distinct()
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        submission_queryset = (PLIPSubmission.objects.select_related('image').all()
-                               .prefetch_related('submission_scores__label').order_by('-id'))
 
-        paginator = Paginator(submission_queryset, self.page_size)
+        # Get Filtered Data
+        filtered_qs = self.get_queryset()
+
+        # Paginate results
+        paginator = Paginator(filtered_qs, self.page_size)
         page_number = self.request.GET.get('page')
         page = paginator.get_page(page_number)
 
-        pagination_data = {'number': page.number,
-                           'num_pages': paginator.num_pages,
-                           'has_next': page.has_next,
-                           'has_previous': page.has_previous,
-                           'next_page_number': page.next_page_number,
-                           'previous_page_number': page.previous_page_number}
-
+        # Serialize page
         serialized_submissions = PLIPSubmissionSerializer(page, many=True).data
-
         for submission in serialized_submissions:
             scores_list = []
-
             for score in submission['submission_scores']:
                 scores_list.append(f"{score['label']}: {score['rounded_score']}")
-
             submission['scores_str'] = '<br>'.join(scores_list)
 
         context['submissions'] = serialized_submissions
-        context['pagination'] = pagination_data
+
+        # Construct Pagination object
+        context['pagination'] = {
+            'number': page.number,
+            'num_pages': paginator.num_pages,
+            'has_next': page.has_next,
+            'has_previous': page.has_previous,
+            'next_page_number': page.next_page_number if page.has_next() else None,
+            'previous_page_number': page.previous_page_number if page.has_previous() else None
+        }
+
+        # Identify existing filter indices for persistence after "apply filters"
+        # active_indices = set([0])  # Always include row 0
+        active_indices = {0}
+        for key in self.request.GET.keys():
+            if key.startswith('label_'):
+                try:
+                    # Extract '3' from 'label_3'
+                    index = int(key.split('_')[1])
+                    active_indices.add(index)
+                except (ValueError, IndexError):
+                    continue
+
+        # Extract existing filters from request and populate
+        filter_rows = []
+        for i in sorted(list(active_indices)):
+            filter_rows.append({
+                'index': i,
+                'label': self.request.GET.get(f'label_{i}', ''),
+                'min': self.request.GET.get(f'min_{i}', ''),
+                'max': self.request.GET.get(f'max_{i}', ''),
+            })
+
+        context['filter_rows'] = filter_rows
+
+        # Preserve URL params
+        params = self.request.GET.copy()
+        if 'page' in params:
+            del params['page']
+        context['url_params'] = params.urlencode()
 
         return context
