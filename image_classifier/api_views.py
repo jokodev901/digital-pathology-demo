@@ -4,6 +4,7 @@ import io
 from PIL import Image
 
 from django.db import transaction
+from django.db.models import Q
 
 from rest_framework import generics, status
 from rest_framework.views import APIView
@@ -13,15 +14,49 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.reverse import reverse
 
 from .models import PLIPSubmission, PLIPImage, PLIPLabel, PLIPScore
-from .serializers.plip_serializers import PLIPSubmissionSerializer, PLIPAPIInputSerializer, PLIPAPIOutputSerializer
+from .serializers.plip_serializers import PLIPAPIListSerializer, PLIPAPIInputSerializer, PLIPAPIOutputSerializer, PLIPSubmissionSerializer
 from .services.plip import PLIPClassifier
 
 
-class PLIPAPIListView(generics.ListAPIView):
+class PLIPAPIListView(APIView):
     permission_classes = (IsAuthenticated,)
-    serializer_class = PLIPSubmissionSerializer
-    queryset = (PLIPSubmission.objects.select_related('image').all()
-                .prefetch_related('submission_scores__label').order_by('-id'))
+    serializer_class = PLIPAPIListSerializer
+
+    def get_queryset(self):
+        queryset = (PLIPSubmission.objects.select_related('image').all()
+                    .prefetch_related('submission_scores__label').order_by('-id'))
+
+        q_and_objects = Q()
+        q_or_objects = Q()
+
+        if 'min_date' in self.request.data:
+            q_and_objects &= Q(created_at__gte=self.request.data['min_date'])
+
+        if 'max_date' in self.request.data:
+            q_and_objects &= Q(created_at__lte=self.request.data['max_date'])
+
+        if 'labels' in self.request.data:
+            for obj in self.request.data['labels']:
+                q_label_object = Q()
+                if 'label' in obj:
+                    q_label_object &= Q(submission_scores__label__label__icontains=obj['label'])
+                    if 'min' in obj:
+                        q_label_object &= Q(submission_scores__score__gte=obj['min'])
+                    if 'max' in obj:
+                        q_label_object &= Q(submission_scores__score__lte=obj['max'])
+
+                q_or_objects |= q_label_object
+
+        q_final = q_and_objects & q_or_objects
+        queryset = queryset.filter(q_final)
+
+        return queryset
+
+    def post(self, request):
+        queryset = self.get_queryset()
+        output_serializer = PLIPAPIOutputSerializer(queryset, many=True)
+
+        return Response(output_serializer.data, status=status.HTTP_200_OK)
 
 
 class PLIPAPICreateView(generics.CreateAPIView):

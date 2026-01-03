@@ -48,3 +48,17 @@ class PLIPAPIOutputSerializer(serializers.ModelSerializer):
     class Meta:
         model = PLIPSubmission
         exclude = ('image',)
+
+
+class PLIPAPILabelFilterSerializer(serializers.Serializer):
+    label = serializers.CharField(required=False, allow_blank=False, allow_null=False, max_length=255)
+    min = serializers.FloatField(required=False, allow_null=False)
+    max = serializers.FloatField(required=False, allow_null=False)
+
+
+class PLIPAPIListSerializer(serializers.Serializer):
+    labels = PLIPLabelSerializer(many=True, read_only=True, required=False)
+    min_date = serializers.DateField(required=False, allow_null=False,
+                                     format='%Y-%m-%d %H:%M:%S', input_formats=['%Y-%m-%d'])
+    max_date = serializers.DateField(required=False, allow_null=False,
+                                     format='%Y-%m-%d %H:%M:%S', input_formats=['%Y-%m-%d'])
