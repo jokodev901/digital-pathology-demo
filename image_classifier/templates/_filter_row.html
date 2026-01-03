@@ -1,33 +1,34 @@
 <div class="filter-row" id="row-{{ index }}" style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">
 
     <div>
-        <label for="label_{{ index }}">Label:</label>
+        <label for="label_{{ index }}">Label</label>
         <input type="text" name="label_{{ index }}" id="label_{{ index }}"
                value="{{ label_val|default:'' }}"
                placeholder="e.g. tumor">
     </div>
 
     <div>
-        <label for="min_{{ index }}">Min:</label>
+        <label for="min_{{ index }}">Min</label>
         <input type="number" step="0.01" min="0" max="1" name="min_{{ index }}" id="min_{{ index }}"
                value="{{ min_val|default:'' }}"
                placeholder="0.0">
     </div>
 
     <div>
-        <label for="max_{{ index }}">Max:</label>
+        <label for="max_{{ index }}">Max</label>
         <input type="number" step="0.01" min="0" max="1" name="max_{{ index }}" id="max_{{ index }}"
                value="{{ max_val|default:'' }}"
                placeholder="1.0">
     </div>
 
     {% if index < 4 %}
-        <button type="button"
-                hx-get="{% url 'add-filter-row' %}?current_index={{ index }}"
-                hx-target="closest .filter-row"
-                hx-swap="afterend"
-                style="margin-top: 18px;">
-            +OR
-        </button>
+    <button type="button"
+            hx-get="{% url 'add-filter-row' %}?current_index={{ index }}"
+            hx-target="closest .filter-row"
+            hx-swap="afterend"
+            style="margin-top: 40px">
+        +OR
+    </button>
+
     {% endif %}
 </div>
