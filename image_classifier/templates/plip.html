@@ -10,6 +10,7 @@
                 <thead><tr>
                     <th>Uploaded Image</th>
                     <th>Classifications</th>
+                    <th>Expected</th>
                 </tr></thead>
                 <tbody>
                     <tr>
@@ -17,6 +18,7 @@
                              alt="Uploaded Image"
                              style="max-width: 100%; border: 1px solid #ddd; border-radius: 4px;"></td>
                         <td>{{ result|safe }}</td>
+                        <td>{{ expected_label }}</td>
                     </tr>
                 </tbody>
             </table>

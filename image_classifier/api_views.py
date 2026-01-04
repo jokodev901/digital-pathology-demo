@@ -115,8 +115,18 @@ class PLIPAPICreateView(generics.CreateAPIView):
                     defaults={"blob_image": thumb_buffer.getvalue()},
                 )
 
-                submission_obj = PLIPSubmission.objects.create(filename=input_file.name,
-                                                               image=image_obj, user=self.request.user)
+                # If expected_label is populated, get or create it as a label object
+                expected_label_obj = None
+                expected_label = input_serializer.validated_data['expected_label']
+
+                if expected_label:
+                    expected_label_obj, created = PLIPLabel.objects.get_or_create(
+                        label=expected_label
+                    )
+
+                submission_obj = PLIPSubmission.objects.create(filename=input_file.name, image=image_obj,
+                                                               expected_label=expected_label_obj,
+                                                               user=self.request.user)
 
                 for key, value in results_sorted.items():
                     label_obj, created = PLIPLabel.objects.get_or_create(
