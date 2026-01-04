@@ -29,7 +29,7 @@ class PLIPLabel(models.Model):
 class PLIPSubmission(TimestampBaseModel):
     image = models.ForeignKey(PLIPImage, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    expected_label = models.ForeignKey(PLIPLabel, on_delete=models.DO_NOTHING, null=True)
+    expected_label = models.ForeignKey(PLIPLabel, on_delete=models.DO_NOTHING, blank=True, null=True)
     filename = models.CharField(max_length=100)
 
     def __str__(self):

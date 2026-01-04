@@ -46,6 +46,7 @@ class PLIPView(LoginRequiredMixin, FormView):
     def form_valid(self, form):
         uploaded_file = form.cleaned_data['image']
         form_labels = form.cleaned_data['labels']
+        expected_label = form.cleaned_data['expected_label']
         md5 = hashlib.md5()
 
         with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_file:
@@ -85,8 +86,16 @@ class PLIPView(LoginRequiredMixin, FormView):
                 defaults={"blob_image": thumb_buffer.getvalue()},
             )
 
-            submission_obj = PLIPSubmission.objects.create(filename=uploaded_file.name,
-                                                           image=image_obj, user=self.request.user)
+            # If expected_label is populated, get or create it as a label object
+            expected_label_obj = None
+
+            if expected_label:
+                expected_label_obj, created = PLIPLabel.objects.get_or_create(
+                    label=expected_label
+                )
+
+            submission_obj = PLIPSubmission.objects.create(filename=uploaded_file.name, image=image_obj,
+                                                           expected_label=expected_label_obj, user=self.request.user)
 
             for key, value in results_sorted.items():
                 label_obj, created = PLIPLabel.objects.get_or_create(
@@ -101,7 +110,8 @@ class PLIPView(LoginRequiredMixin, FormView):
 
         # Re-render the page with the results
         return self.render_to_response(
-            self.get_context_data(form=form, result=results_str, thumbnail=image_obj.image_base64)
+            self.get_context_data(form=form, result=results_str, expected_label=expected_label,
+                                  thumbnail=image_obj.image_base64)
         )
 
 
