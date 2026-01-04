@@ -39,11 +39,14 @@ class PLIPSubmissionSerializer(serializers.ModelSerializer):
 
 class PLIPAPIInputSerializer(serializers.Serializer):
     image = serializers.ImageField(required=True)
+    expected_label = serializers.CharField(required=True, allow_blank=False, allow_null=True, max_length=255)
     labels = serializers.CharField(required=True, allow_blank=True, allow_null=False, max_length=255)
+
 
 
 class PLIPAPIOutputSerializer(serializers.ModelSerializer):
     submission_scores = PLIPScoreSerializer(many=True, read_only=True)
+    expected_label = serializers.SlugRelatedField(many=False, read_only=True, slug_field='label')
 
     class Meta:
         model = PLIPSubmission
