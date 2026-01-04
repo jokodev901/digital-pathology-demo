@@ -3,7 +3,7 @@
 {% block content %}
 <article>
     {% include "_tab_header.html" %}
-    <form method="post" enctype="multipart/form-data">
+    <form class=border method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {% if result %}
             <table>

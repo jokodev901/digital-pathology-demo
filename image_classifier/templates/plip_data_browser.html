@@ -6,7 +6,7 @@
 <article>
     {% include "_tab_header.html" %}
 
-    <div class="filter-container" style="padding: 15px; margin-bottom: 20px;">
+    <div class="filter-container" style="padding: 15px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #ddd">
         <details {% if filters_expanded %}open{% endif %}
                  hx-get="{% url 'update-filter-state' %}"
                  hx-trigger="toggle"
@@ -16,7 +16,7 @@
                 Filter Results
             </summary>
 
-            <form method="GET" action=".">
+            <form class="noborder" method="GET" action=".">
                 <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee;">
                     <div style="display: flex; gap: 10px;">
                     <label>Start date<input type="date" name="min_date" value="{{ request.GET.min_date }}"></label>
