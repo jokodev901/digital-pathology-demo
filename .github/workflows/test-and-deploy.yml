@@ -1,11 +1,27 @@
-name: Remote Build and Deploy
+name: CI/CD
 
 on:
   push:
+    branches: [ "**" ]
+  pull_request:
     branches: [ "master" ]
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Build Test Image
+        run: docker build -t test-app .
+
+      - name: Run Django Tests
+        run: docker run test-app python manage.py test
+
   deploy:
+    needs: test
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     steps:
       - name: Execute Remote Build via SSH
@@ -16,13 +32,6 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /opt/digital-pathology-demo
-            
-            # Pull latest code
             sudo git pull origin master
-            
-            # Restart containers
-            docker-compose down -v
-            docker-compose up -d
-            
-            # Delete dangling images
+            docker-compose up --build -d            
             docker image prune -f

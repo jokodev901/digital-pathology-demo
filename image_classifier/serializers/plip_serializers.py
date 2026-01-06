@@ -44,7 +44,6 @@ class PLIPAPIInputSerializer(serializers.Serializer):
     labels = serializers.CharField(required=True, allow_blank=True, allow_null=False, max_length=255)
 
 
-
 class PLIPAPIOutputSerializer(serializers.ModelSerializer):
     submission_scores = PLIPScoreSerializer(many=True, read_only=True)
     expected_label = serializers.SlugRelatedField(many=False, read_only=True, slug_field='label')
