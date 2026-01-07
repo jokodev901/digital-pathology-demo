@@ -1,0 +1,207 @@
+openapi: 3.0.3
+info:
+  title: PLIP Classifier API
+  version: 1.0.0
+paths:
+  /api/v1/plipinput/:
+    post:
+      operationId: plipinput_create
+      tags:
+      - plipinput
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PLIPAPICreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PLIPAPICreateRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PLIPAPICreate'
+          description: ''
+  /api/v1/pliplist/:
+    post:
+      operationId: pliplist_create
+      tags:
+      - pliplist
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PLIPAPIListInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PLIPAPIListInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PLIPAPIListInputRequest'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PLIPSubmission'
+          description: ''
+components:
+  schemas:
+    PLIPAPICreate:
+      type: object
+      properties:
+        image:
+          type: string
+          format: uri
+        expected_label:
+          type: string
+          nullable: true
+          maxLength: 255
+        labels:
+          type: string
+          maxLength: 255
+      required:
+      - expected_label
+      - image
+      - labels
+    PLIPAPICreateRequest:
+      type: object
+      properties:
+        image:
+          type: string
+          format: binary
+        expected_label:
+          type: string
+          nullable: true
+          minLength: 1
+          maxLength: 255
+        labels:
+          type: string
+          maxLength: 255
+      required:
+      - expected_label
+      - image
+      - labels
+    PLIPAPIListInputRequest:
+      type: object
+      properties:
+        labels:
+          type: array
+          items:
+            $ref: '#/components/schemas/PLIPAPIListLabelRequest'
+          writeOnly: true
+        min_date:
+          type: string
+          format: date
+          nullable: true
+        max_date:
+          type: string
+          format: date
+          nullable: true
+    PLIPAPIListLabelRequest:
+      type: object
+      properties:
+        label:
+          type: string
+          minLength: 1
+          maxLength: 255
+        min:
+          type: number
+          format: double
+          nullable: true
+        max:
+          type: number
+          format: double
+          nullable: true
+      required:
+      - label
+    PLIPImage:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        image_base64:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+        md5:
+          type: string
+          maxLength: 32
+      required:
+      - id
+      - image_base64
+      - md5
+    PLIPScore:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        label:
+          type: string
+          readOnly: true
+        rounded_score:
+          type: string
+          readOnly: true
+        score:
+          type: number
+          format: double
+      required:
+      - id
+      - label
+      - rounded_score
+      - score
+    PLIPSubmission:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        image:
+          allOf:
+          - $ref: '#/components/schemas/PLIPImage'
+          readOnly: true
+        expected_label:
+          type: string
+          readOnly: true
+        submission_scores:
+          type: array
+          items:
+            $ref: '#/components/schemas/PLIPScore'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+        filename:
+          type: string
+          maxLength: 100
+        user:
+          type: integer
+      required:
+      - expected_label
+      - filename
+      - id
+      - image
+      - submission_scores
+      - user
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    tokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token"
