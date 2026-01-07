@@ -13,7 +13,7 @@ class PLIPImage(TimestampBaseModel):
         if not self.blob_image:
             return ""
         encoded = base64.b64encode(self.blob_image).decode('utf-8')
-        return f"data:image/jpeg;base64,{encoded}"
+        return encoded
 
     def __str__(self):
         return self.md5

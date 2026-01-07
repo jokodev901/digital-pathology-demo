@@ -51,7 +51,7 @@
         <tbody>
             {% for obj in submissions %}
             <tr>
-                <td><img src="{{ obj.image.image_base64 }}"
+                <td><img src="data:image/jpeg;base64,{{ obj.image.image_base64 }}"
                          alt="Uploaded Image"
                          style="max-width: 100%; border: 1px solid #ddd; border-radius: 4px;"></td>
                 <td>{{ obj.scores_str|safe }}</td>

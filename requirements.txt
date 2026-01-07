@@ -11,3 +11,4 @@ Pillow
 numpy
 transformers
 dotenv
+drf-spectacular

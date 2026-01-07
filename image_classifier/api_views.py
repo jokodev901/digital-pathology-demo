@@ -11,34 +11,40 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.reverse import reverse
 from rest_framework.pagination import PageNumberPagination
 
+from drf_spectacular.utils import extend_schema
+
 from .models import PLIPSubmission, PLIPImage, PLIPLabel, PLIPScore
-from .serializers.plip_serializers import PLIPAPIListSerializer, PLIPAPIInputSerializer, PLIPAPIOutputSerializer, PLIPSubmissionSerializer
+from .serializers.plip_serializers import PLIPAPIListInputSerializer, PLIPAPICreateSerializer, PLIPSubmissionSerializer
 from .services.plip import PLIPClassifier
 
 
 class PLIPAPIListView(APIView):
     permission_classes = (IsAuthenticated,)
-    serializer_class = PLIPAPIListSerializer
+    serializer_class = PLIPAPIListInputSerializer
 
     def get_queryset(self):
-        queryset = (PLIPSubmission.objects.select_related('image').all()
-                    .prefetch_related('submission_scores__label').order_by('-id'))
+        queryset = PLIPSubmission.objects.all()
+        serialized_input = self.serializer_class(data=self.request.data)
+        serialized_input.is_valid(raise_exception=True)
+
+        min_date = serialized_input.validated_data.get('min_date', None)
+        max_date = serialized_input.validated_data.get('max_date', None)
+        labels = serialized_input.validated_data.get('labels', None)
 
         q_and_objects = Q()
         q_or_objects = Q()
         has_label_filters = False
 
-        if 'min_date' in self.request.data:
-            q_and_objects &= Q(created_at__gte=self.request.data['min_date'])
+        if min_date:
+            q_and_objects &= Q(created_at__gte=min_date)
 
-        if 'max_date' in self.request.data:
-            q_and_objects &= Q(created_at__lte=self.request.data['max_date'])
+        if max_date:
+            q_and_objects &= Q(created_at__lte=max_date)
 
-        if 'labels' in self.request.data:
-            for obj in self.request.data['labels']:
+        if labels:
+            for obj in labels:
                 q_label_object = Q()
 
                 if 'label' in obj:
@@ -58,17 +64,17 @@ class PLIPAPIListView(APIView):
         if has_label_filters:
             q_final &= q_or_objects
 
-        queryset = queryset.filter(q_final).distinct()
+        queryset = queryset.filter(q_final).distinct().order_by('-id')
+        return PLIPSubmissionSerializer.setup_eager_loading(queryset)
 
-        return queryset
-
+    @extend_schema(responses={200: PLIPSubmissionSerializer})
     def post(self, request):
         queryset = self.get_queryset()
         page_size = 10
         paginator = PageNumberPagination()
         paginator.page_size = page_size
         result_page = paginator.paginate_queryset(queryset, request)
-        output_serializer = PLIPAPIOutputSerializer(result_page, many=True)
+        output_serializer = PLIPSubmissionSerializer(result_page, many=True)
 
         return paginator.get_paginated_response(output_serializer.data)
 
@@ -76,13 +82,13 @@ class PLIPAPIListView(APIView):
 class PLIPAPICreateView(generics.CreateAPIView):
     permission_classes = (IsAuthenticated, )
     parser_classes = (MultiPartParser, FormParser)
-    serializer_class = PLIPAPIInputSerializer
+    serializer_class = PLIPAPICreateSerializer
 
     def create(self, request, *args, **kwargs):
-        input_serializer = self.get_serializer(data=request.data)
+        input_serializer = self.serializer_class(data=request.data)
         input_serializer.is_valid(raise_exception=True)
-        input_file = input_serializer.validated_data['image']
-        input_labels = input_serializer.validated_data['labels']
+        input_file = input_serializer.validated_data.get('image', None)
+        input_labels = input_serializer.validated_data.get('labels', None)
 
         try:
             file_content = input_file.read()
@@ -117,7 +123,7 @@ class PLIPAPICreateView(generics.CreateAPIView):
 
                 # If expected_label is populated, get or create it as a label object
                 expected_label_obj = None
-                expected_label = input_serializer.validated_data['expected_label']
+                expected_label = input_serializer.validated_data.get('expected_label', None)
 
                 if expected_label:
                     expected_label_obj, created = PLIPLabel.objects.get_or_create(
@@ -139,27 +145,12 @@ class PLIPAPICreateView(generics.CreateAPIView):
                         submission=submission_obj,
                     )
 
-                submission_obj = (
-                    PLIPSubmission.objects.select_related('image')
-                    .prefetch_related('submission_scores__label')
-                    .get(id=submission_obj.id)
-                )
+                queryset = PLIPSubmissionSerializer.setup_eager_loading(PLIPSubmission.objects.all())
+                submission_obj = queryset.get(id=submission_obj.id)
 
-            output_serializer = PLIPAPIOutputSerializer(submission_obj)
+            output_serializer = PLIPSubmissionSerializer(submission_obj)
 
             return Response(output_serializer.data, status=status.HTTP_201_CREATED)
 
         except Exception as e:
             return Response({"error": f"Error processing image: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class APIRootView(APIView):
-    """
-    Root API index
-    Lists all available endpoints
-    """
-    def get(self, request, format=None):
-        return Response({
-            'pliplist': reverse('plip-list', request=request, format=format),
-            'plipinput': reverse('plip-input', request=request, format=format),
-        })
