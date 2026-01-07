@@ -18,7 +18,7 @@ class PLIPImageAdmin(admin.ModelAdmin):
 
             # Return HTML img tag for rendering in admin screen
             return mark_safe(
-                f'<img src="{base64_data}" '
+                f'<img src="data:image/jpeg;base64,{base64_data}"'
                 f'style="width: 100px; height: auto; border-radius: 4px;" />'
             )
         return "No Image"
