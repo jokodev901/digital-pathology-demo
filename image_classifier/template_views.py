@@ -13,6 +13,7 @@ from django.views.generic import FormView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 
+from authentication.permissions import ContributorRequiredMixin
 from .forms import ImageUploadForm
 from .services.plip import PLIPClassifier
 from .models import PLIPImage, PLIPSubmission, PLIPLabel, PLIPScore
@@ -39,7 +40,7 @@ class UpdateFilterStateView(LoginRequiredMixin, View):
         return HttpResponse(status=204)
 
 
-class PLIPView(LoginRequiredMixin, FormView):
+class PLIPView(LoginRequiredMixin, ContributorRequiredMixin, FormView):
     template_name = 'plip.html'
     form_class = ImageUploadForm
 
