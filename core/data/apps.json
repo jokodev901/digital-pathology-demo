@@ -2,7 +2,7 @@
   {
     "title": "PLIP Zero Shot Classification Tool",
     "tagline": "Pathology Language & Image Pretraining",
-    "url": "plip",
+    "url": "plip_data",
     "description": "Upload images to a locally-hosted instance of the PLIP model trained on the OpenPath dataset.\nImage thumbnails and prediction results are stored in a browsable database.\nModel is intended for exploring arbitrary image classification, not for production use.  <p>Huang, Z., Bianchi, F., Yuksekgonul, M., Montine, T. J., &amp; Zou, J. (2023). <br>  <strong>A visual–language foundation model for pathology image analysis using medical Twitter.</strong><br><em>Nature Medicine</em>, 1–10.</p>",
     "metadata": "Category: Pathology Classification & Research",
     "resources": {
