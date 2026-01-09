@@ -15,6 +15,7 @@ from rest_framework.pagination import PageNumberPagination
 
 from drf_spectacular.utils import extend_schema
 
+from authentication.permissions import IsContributor
 from .models import PLIPSubmission, PLIPImage, PLIPLabel, PLIPScore
 from .serializers.plip_serializers import PLIPAPIListInputSerializer, PLIPAPICreateSerializer, PLIPSubmissionSerializer
 from .services.plip import PLIPClassifier
@@ -80,7 +81,7 @@ class PLIPAPIListView(APIView):
 
 
 class PLIPAPICreateView(generics.CreateAPIView):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated, IsContributor)
     parser_classes = (MultiPartParser, FormParser)
     serializer_class = PLIPAPICreateSerializer
 
