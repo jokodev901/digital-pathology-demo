@@ -128,13 +128,18 @@ class PLIPImageView(LoginRequiredMixin, TemplateView):
 
         has_label_filters = False
 
-        min_date = self.request.GET.get('min_date')
-        max_date = self.request.GET.get('max_date')
+        # min_date = self.request.GET.get('min_date')
+        # max_date = self.request.GET.get('max_date')
+        #
+        # if min_date:
+        #     q_and_objects &= Q(created_at__gte=min_date)
+        # if max_date:
+        #     q_and_objects &= Q(created_at__lte=max_date)
 
-        if min_date:
-            q_and_objects &= Q(created_at__gte=min_date)
-        if max_date:
-            q_and_objects &= Q(created_at__lte=max_date)
+        # Expected label filter
+        expected = self.request.GET.get('expected')
+        if expected:
+            q_and_objects &= Q(expected_label__label__iexact=expected)
 
         # Dynamic Label Filters (label_0 ... label_4)
         for i in range(5):
@@ -212,8 +217,9 @@ class PLIPImageView(LoginRequiredMixin, TemplateView):
             filter_rows.append({
                 'index': i,
                 'label': self.request.GET.get(f'label_{i}', ''),
-                'min': self.request.GET.get(f'min_{i}', ''),
-                'max': self.request.GET.get(f'max_{i}', ''),
+                'expected': self.request.GET.get(f'expected_{i}', ''),
+                # 'min': self.request.GET.get(f'min_{i}', ''),
+                # 'max': self.request.GET.get(f'max_{i}', ''),
             })
 
         context['filter_rows'] = filter_rows
