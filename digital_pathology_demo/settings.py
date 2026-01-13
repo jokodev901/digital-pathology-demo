@@ -36,6 +36,7 @@ SECURE_SSL_REDIRECT = True
 SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
 
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
@@ -58,6 +59,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'drf_spectacular',
+    'csp'
 ]
 
 MIDDLEWARE = [
@@ -68,6 +70,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'csp.middleware.CSPMiddleware',
 ]
 
 ROOT_URLCONF = 'digital_pathology_demo.urls'
@@ -184,4 +187,19 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     'COMPONENT_SPLIT_REQUEST': True
+}
+
+# Django CSP settings
+# certain htmx triggers need UNSAFE_EVAL
+# drf-spectacular UIs need UNSAFE_INLINE
+from csp.constants import SELF, NONCE, UNSAFE_EVAL, UNSAFE_INLINE
+
+CONTENT_SECURITY_POLICY = {
+    "DIRECTIVES": {
+        "default-src": [SELF],
+        "style-src": [SELF, "cdn.jsdelivr.net", NONCE, UNSAFE_INLINE],
+        "script-src": [SELF, "cdn.jsdelivr.net", NONCE, UNSAFE_EVAL, UNSAFE_INLINE],
+        "img-src": [SELF, "data:", "cdn.jsdelivr.net"],
+        "connect-src": [SELF, "cdn.jsdelivr.net"],
+    }
 }

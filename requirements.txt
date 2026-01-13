@@ -12,3 +12,4 @@ numpy
 transformers
 dotenv
 drf-spectacular
+django-csp

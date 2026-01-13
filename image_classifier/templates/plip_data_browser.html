@@ -1,30 +1,22 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-<script src="https://unpkg.com/htmx.org@1.9.6"></script>
-
 <article>
     {% include "_tab_header.html" %}
 
-    <div class="filter-container" style="padding: 15px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #ddd">
+    <div class="filter-container">
         <details {% if filters_expanded %}open{% endif %}
                  hx-get="{% url 'update-filter-state' %}"
                  hx-trigger="toggle"
                  hx-vals='js:{state: event.target.open ? "open" : "closed"}'>
 
-            <summary style="cursor: pointer; font-weight: bold; font-size: 1.2rem; margin-bottom: 10px;">
+            <summary class="filter-summary">
                 Filter Results
             </summary>
 
             <form class="noborder" method="GET" action=".">
-                <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee;">
-                    <!--
-                    <div style="display: flex; gap: 10px;">
-                    <label>Start date<input type="date" name="min_date" value="{{ request.GET.min_date }}"></label>
-                    <label>End date<input type="date" name="max_date" value="{{ request.GET.max_date }}"></label>
-                    </div>
-                    -->
-                    <div style="display: flex; gap: 10px;">
+                <div class="filter-expected-container">
+                    <div class="filter-expected">
                         <label>
                             Expected label<input type="text" name="expected" value="{{ request.GET.expected }}"
                                                  placeholder="e.g. tumor">
@@ -38,7 +30,7 @@
                     {% endfor %}
                 </div>
 
-                <div style="margin-top: 15px;">
+                <div class="filter-score">
                     <button type="submit" class="btn btn-primary">Apply Filters</button>
                     <a href="." class="btn btn-secondary">Clear</a>
                 </div>
@@ -60,8 +52,7 @@
             {% for obj in submissions %}
             <tr>
                 <td><img src="data:image/jpeg;base64,{{ obj.image.image_base64 }}"
-                         alt="Uploaded Image"
-                         style="max-width: 100%; border: 1px solid #ddd; border-radius: 4px;"></td>
+                         alt="Uploaded Image" class="thumbnail"></td>
                 <td>{{ obj.scores_str|safe }}</td>
                 <td>{{ obj.expected_label|default_if_none:"" }}</td>
             {% empty %}

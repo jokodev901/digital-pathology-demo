@@ -3,18 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="htmx-config" content='{"inlineScriptNonce": "{{ request.csp_nonce }}", "includeIndicatorStyles": false}'>
     <title>DigiPathDemo</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
-    <style>
+    <script nonce="{{ request.csp_nonce }}" src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
+    <link nonce="{{ request.csp_nonce }}" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <style nonce="{{ request.csp_nonce }}">
         body { padding-top: 2rem; }
         main.container { max-width: 1200px; }
-        article { max-width: 1000px; margin-left: auto; margin-right: auto; width: 100% }
-        header { margin-bottom: 2rem; border-bottom: 1px solid #e1e1e1; padding-bottom: 1rem }
-        form.border { max-width: 1000px; background: transparent; padding: 2rem; border-radius: 8px; border: 1px solid #ddd }
+        article { max-width: 1000px; margin-left: auto; margin-right: auto; width: 100%; }
+        header { margin-bottom: 2rem; border-bottom: 1px solid #e1e1e1; padding-bottom: 1rem; }
+        form.border { max-width: 1000px; background: transparent; padding: 2rem; border-radius: 8px; border: 1px solid #ddd; }
         form.noborder { max-width: 1000px; background: transparent; padding: 2rem; }
-        form.navbutton { display:inline; border:none; padding:0 }
-        ul.resource-list, ul.resource-list li {list-style: none; padding: 0; margin: 0; line-height: 1.2 }
-}
+        form.navbutton { display:inline; border:none; padding:0; }
+        ul.resource-list, ul.resource-list li { list-style: none; padding: 0; margin: 0; line-height: 1.2; }
+        .filter-container { padding: 15px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #ddd; }
+        .filter-row { display: flex; gap: 10px; margin-bottom: 1px; align-items: center; }
+        .filter-summary { cursor: pointer; font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; }
+        .filter-expected-container {margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+        .filter-expected { display: flex; gap: 10px; }
+        .filter-score { margin-top: 15px; }
+        .thumbnail { max-width: 100%; border: 1px solid #ddd; border-radius: 4px; }
+        .spacer { visibility: hidden; }
+        .appcard-title { margin-bottom: 0.25rem; }
+
+        /* manually specifying htmx inline styling paired with "includeIndicatorStyles": false for csp */
+        .htmx-indicator {opacity:0;transition: opacity 200ms ease-in;}
+        .htmx-request .htmx-indicator{opacity:1}
+        .htmx-request.htmx-indicator{opacity:1}
     </style>
 </head>
 <body>
