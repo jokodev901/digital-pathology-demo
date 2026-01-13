@@ -31,9 +31,9 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', get_random_secret_key())
 DEBUG = os.environ.get('DJANGO_DEBUG', False) == 'True'     # Setting bool in .env is treated as string
 
 # SSL, session, cookie, and csrf security settings
-SECUREPROXYSSLHEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-SECURE_HSTS_SECONDS = 3600
-SECURE_SSL_REDIRECT = False # SSL redirect is being handled by nginx
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SECURE_HSTS_SECONDS = 31536000
+SECURE_SSL_REDIRECT = True
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
