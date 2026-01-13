@@ -1,7 +1,7 @@
 import io
 from PIL import Image
 
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
 
@@ -17,6 +17,7 @@ class PLIPTemplateTests(TestCase):
         return SimpleUploadedFile('image.jpg', file.read(), content_type='image/jpeg')
 
     def setUp(self):
+        self.client = Client(HTTP_X_FORWARDED_PROTO='https')
         self.user = User.objects.create_user(username='plippageuser', password='password123')
         self.contrib_user = User.objects.create_user(username='plipcontribuser', password='password123',
                                                      is_contributor=True)

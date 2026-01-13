@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from rest_framework.authtoken.models import Token
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 
 from authentication.models import User
@@ -20,6 +20,7 @@ class PLIPApiTests(APITestCase):
         return SimpleUploadedFile('image.jpg', file.read(), content_type='image/jpeg')
 
     def setUp(self):
+        self.client = APIClient(HTTP_X_FORWARDED_PROTO='https')
         self.user = User.objects.create_user(username='apiuser', password='password123')
         self.contrib_user = User.objects.create_user(username='apicontribuser', password='password123',
                                                      is_contributor=True)
