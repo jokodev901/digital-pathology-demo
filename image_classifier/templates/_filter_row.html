@@ -1,5 +1,4 @@
-<div class="filter-row" id="row-{{ index }}" style="display: flex; gap: 10px; margin-bottom: 1px; align-items: center;">
-
+<div class="filter-row" id="row-{{ index }}">
     <div>
         {% if index == 0 %}
         <label for="label_{{ index }}">Label</label>
@@ -30,7 +29,7 @@
     {% if index < 4 %}
     <div>
         {% if index == 0 %}
-        <label style="visibility: hidden;">Spacer</label>
+        <label class="spacer">Spacer</label>
         {% endif %}
         <button type="button"
                 hx-get="{% url 'add-filter-row' %}?current_index={{ index }}"

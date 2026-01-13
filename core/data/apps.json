@@ -21,16 +21,5 @@
       "Django REST Framework Documentation": "https://www.django-rest-framework.org",
       "Swagger OpenAPI Specification": "https://swagger.io/specification/"
     }
-  },
-  {
-    "title": "PLIP Zero Shot Redoc API Browser",
-    "tagline": "Open source OpenAPI documentation",
-    "url": "redoc",
-    "description": "Browsable Redoc API reference for PLIP classification endpoints",
-    "metadata": "Category: API",
-    "resources": {
-      "Django REST Framework Documentation": "https://www.django-rest-framework.org",
-      "Redoc github": "https://github.com/Redocly/redoc"
-    }
   }
 ]

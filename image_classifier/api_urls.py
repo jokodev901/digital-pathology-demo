@@ -1,6 +1,6 @@
-from django.urls import path, include
+from django.urls import path
 from rest_framework.permissions import IsAuthenticated
-from drf_spectacular.views import SpectacularSwaggerView, SpectacularAPIView, SpectacularRedocView
+from drf_spectacular.views import SpectacularSwaggerView, SpectacularAPIView
 from .api_views import PLIPAPIListView, PLIPAPICreateView
 
 
@@ -10,6 +10,4 @@ urlpatterns = [
     path('schema/', SpectacularAPIView.as_view(permission_classes=(IsAuthenticated, )), name='schema'),
     path('schema/swagger-ui/',
          SpectacularSwaggerView.as_view(url_name='schema', permission_classes=(IsAuthenticated, )), name='swagger-ui'),
-    path('schema/redoc/',
-         SpectacularRedocView.as_view(url_name='schema', permission_classes=(IsAuthenticated, )), name='redoc'),
 ]
