@@ -219,8 +219,8 @@ class PLIPImageView(LoginRequiredMixin, TemplateView):
                 'index': i,
                 'label': self.request.GET.get(f'label_{i}', ''),
                 'expected': self.request.GET.get(f'expected_{i}', ''),
-                # 'min': self.request.GET.get(f'min_{i}', ''),
-                # 'max': self.request.GET.get(f'max_{i}', ''),
+                'min': self.request.GET.get(f'min_{i}', ''),
+                'max': self.request.GET.get(f'max_{i}', ''),
             })
 
         context['filter_rows'] = filter_rows
