@@ -1,4 +1,9 @@
-<span class="step-links">
+<span class="step-links"
+        hx-boost="true"
+        hx-target="#filter-results"
+        hx-swap="outerHTML show:none"
+        hx-push-url="true">
+
     {% if pagination.has_previous %}
         <a href="?page=1{% if url_params %}&{{ url_params }}{% endif %}">&laquo; first</a>
         <a href="?page={{ pagination.previous_page_number }}{% if url_params %}&{{ url_params }}{% endif %}">previous</a>

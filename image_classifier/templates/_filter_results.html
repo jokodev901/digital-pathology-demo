@@ -1,0 +1,27 @@
+    <div id="filter-results">
+        {% include "_page_nav.html" %}
+        <div class="data-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Classifications</th>
+                        <th>Expected</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in submissions %}
+                    <tr>
+                        <td><img src="data:image/jpeg;base64,{{ obj.image.image_base64 }}"
+                                 alt="Uploaded Image" class="thumbnail"></td>
+                        <td>{{ obj.scores_str|safe }}</td>
+                        <td>{{ obj.expected_label|default_if_none:"" }}</td>
+                    {% empty %}
+                        <td colspan="2">No submissions found matching your criteria.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% include "_page_nav.html" %}
+    </div>
