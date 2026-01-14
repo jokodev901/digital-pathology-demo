@@ -14,54 +14,39 @@
                 Filter Results
             </summary>
 
-            <form class="noborder" method="GET" action=".">
-                <div class="filter-expected-container">
-                    <div class="filter-expected">
-                        <label>
-                            Expected label<input type="text" name="expected" value="{{ request.GET.expected }}"
-                                                 placeholder="e.g. tumor">
-                        </label>
-                    </div>
+            <form class="noborder" method="GET" action="."
+                hx-boost="true"
+                hx-target="#filter-results"
+                hx-swap="outerHTML show:none">
+                <div class="filter-expected">
+                    <label>
+                    Expected label
+                    <input type="text" name="expected" value="{{ request.GET.expected }}"
+                        placeholder="e.g. tumor"
+                        hx-get="."
+                        hx-trigger="input changed delay:500ms, keyup[key=='Enter']"
+                        hx-target="#filter-results"
+                        hx-include="closest form"
+                        hx-swap="outerHTML show:none"
+                        hx-replace-url="true">
+                    </label>
                 </div>
-
                 <div id="dynamic-filters">
                     {% for row in filter_rows %}
                         {% include "_filter_row.html" with index=row.index label_val=row.label min_val=row.min max_val=row.max %}
                     {% endfor %}
                 </div>
-
                 <div class="filter-score">
-                    <button type="submit" class="btn btn-primary">Apply Filters</button>
-                    <a href="." class="btn btn-secondary">Clear</a>
+                    <button class="button-large" type="submit">Apply Filters</button>
+                    <a href="." role="button" class="outline secondary">
+                       Clear
+                    </a>
                 </div>
             </form>
         </details>
     </div>
 
-    {% include "_page_nav.html" %}
+    {% include "_filter_results.html" %}
 
-    <table>
-        <thead>
-            <tr>
-                <th>Image</th>
-                <th>Classifications</th>
-                <th>Expected</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for obj in submissions %}
-            <tr>
-                <td><img src="data:image/jpeg;base64,{{ obj.image.image_base64 }}"
-                         alt="Uploaded Image" class="thumbnail"></td>
-                <td>{{ obj.scores_str|safe }}</td>
-                <td>{{ obj.expected_label|default_if_none:"" }}</td>
-            {% empty %}
-                <td colspan="2">No submissions found matching your criteria.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    {% include "_page_nav.html" %}
 </article>
 {% endblock %}

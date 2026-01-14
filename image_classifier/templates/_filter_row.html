@@ -5,7 +5,13 @@
         {% endif %}
         <input type="text" name="label_{{ index }}" id="label_{{ index }}"
                value="{{ label_val|default:'' }}"
-               placeholder="e.g. tumor">
+               placeholder="e.g. tumor"
+               hx-get="."
+               hx-trigger="input changed delay:500ms, keyup[key=='Enter']"
+               hx-target="#filter-results"
+               hx-include="closest form"
+               hx-swap="outerHTML show:none"
+               hx-replace-url="true">
     </div>
 
     <div>
@@ -14,7 +20,13 @@
         {% endif %}
         <input type="number" step="0.01" min="0" max="1" name="min_{{ index }}" id="min_{{ index }}"
                value="{{ min_val|default:'' }}"
-               placeholder="0.0">
+               placeholder="0.0"
+               hx-get="."
+               hx-trigger="input changed delay:500ms, keyup[key=='Enter']"
+               hx-target="#filter-results"
+               hx-include="closest form"
+               hx-swap="outerHTML show:none"
+               hx-replace-url="true">
     </div>
 
     <div>
@@ -23,7 +35,13 @@
         {% endif %}
         <input type="number" step="0.01" min="0" max="1" name="max_{{ index }}" id="max_{{ index }}"
                value="{{ max_val|default:'' }}"
-               placeholder="1.0">
+               placeholder="1.0"
+               hx-get="."
+               hx-trigger="input changed delay:500ms, keyup[key=='Enter']"
+               hx-target="#filter-results"
+               hx-include="closest form"
+               hx-swap="outerHTML show:none"
+               hx-replace-url="true">
     </div>
 
     {% if index < 4 %}

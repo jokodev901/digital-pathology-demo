@@ -120,6 +120,11 @@ class PLIPImageView(LoginRequiredMixin, TemplateView):
     template_name = 'plip_data_browser.html'
     page_size = 10
 
+    def get_template_names(self):
+        if self.request.headers.get('HX-Request'):
+            return ['_filter_results.html']
+        return [self.template_name]
+
     def get_queryset(self):
         queryset = (PLIPSubmission.objects.select_related('image').all()
                     .prefetch_related('submission_scores__label').order_by('-id'))
