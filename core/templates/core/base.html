@@ -25,16 +25,13 @@
         .thumbnail { max-width: 100%; border: 1px solid #ddd; border-radius: 4px; }
         .spacer { visibility: hidden; }
         .appcard-title { margin-bottom: 0.25rem; }
-        .button-large {
-          max-width: 300px;
-          overflow: hidden;
-          white-space: nowrap;
-        }
+        .button-large { max-width: 300px; overflow: hidden; white-space: nowrap; }
+        .htmx-indicator { display: none; margin-left: 10px; }
+        .htmx-request .htmx-indicator, .htmx-request.htmx-indicator { display: inline-block; align-items: center; }
+        .pagination-wrapper { margin-bottom: var(--pico-spacing); }
+        .step-links a { margin-bottom: 0; }
 
         /* manually specifying htmx inline styling paired with "includeIndicatorStyles": false for csp */
-        .htmx-indicator {opacity:0;transition: opacity 200ms ease-in;}
-        .htmx-request .htmx-indicator{opacity:1}
-        .htmx-request.htmx-indicator{opacity:1}
     </style>
 </head>
 <body>
