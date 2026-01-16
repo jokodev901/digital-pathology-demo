@@ -3,20 +3,16 @@
 {% block content %}
 <article>
     {% include "_tab_header.html" %}
-
     <div class="filter-container">
         <details {% if filters_expanded %}open{% endif %}
                  hx-get="{% url 'update-filter-state' %}"
                  hx-trigger="toggle"
                  hx-vals='js:{state: event.target.open ? "open" : "closed"}'>
-
             <summary class="filter-summary">
                 Filter Results
             </summary>
-
             <form class="noborder" method="GET" action="."
                 hx-boost="true"
-                hx-target="#filter-results"
                 hx-swap="outerHTML show:none">
                 <div class="filter-expected">
                     <label>
@@ -38,15 +34,13 @@
                 </div>
                 <div class="filter-score">
                     <button class="button-large" type="submit">Apply Filters</button>
-                    <a href="." role="button" class="outline secondary">
+                    <a href="." role="button" class="outline secondary" hx-boost="false">
                        Clear
                     </a>
                 </div>
             </form>
         </details>
     </div>
-
     {% include "_filter_results.html" %}
-
 </article>
 {% endblock %}
